@@ -32,9 +32,19 @@ export const controlSoberano = pgTable('control_soberano', {
   fechaEjecucion: timestamp('fecha_ejecucion').defaultNow(),
 });
 
+export const bancoCentralZirok = pgTable('banco_central_zirok', {
+  idBanco: serial('id_banco').primaryKey(),
+  nombreBanco: varchar('nombre_banco', { length: 100 }).default('Banco de Soberanía Absoluta'),
+  totalEmitido: decimal('total_emitido', { precision: 25, scale: 4 }).default('0.0000'),
+  factorCrecimiento: decimal('factor_crecimiento', { precision: 5, scale: 3 }).default('1.618'),
+  transaccionesTotales: integer('transacciones_totales').default(0),
+  ultimaActualizacion: timestamp('ultima_actualizacion').defaultNow(),
+});
+
 export type ActivoReal = typeof activosReales.$inferSelect;
 export type NuevoActivo = typeof activosReales.$inferInsert;
 export type TransaccionZircoin = typeof libroMayorZircoin.$inferSelect;
 export type NuevaTransaccion = typeof libroMayorZircoin.$inferInsert;
 export type ComandoSoberano = typeof controlSoberano.$inferSelect;
 export type NuevoComando = typeof controlSoberano.$inferInsert;
+export type BancoCentral = typeof bancoCentralZirok.$inferSelect;
