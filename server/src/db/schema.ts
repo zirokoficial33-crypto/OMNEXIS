@@ -32,6 +32,30 @@ export const controlSoberano = pgTable('control_soberano', {
   fechaEjecucion: timestamp('fecha_ejecucion').defaultNow(),
 });
 
+export const cuentasSoberanas = pgTable('cuentas_soberanas', {
+  id: serial('id').primaryKey(),
+  numeroCuenta: varchar('numero_cuenta', { length: 20 }).notNull().unique(),
+  titular: varchar('titular', { length: 100 }).notNull(),
+  tipo: varchar('tipo', { length: 50 }).default('PERSONAL'),
+  saldo: decimal('saldo', { precision: 25, scale: 4 }).default('0.0000'),
+  estado: varchar('estado', { length: 30 }).default('ACTIVA'),
+  fechaApertura: timestamp('fecha_apertura').defaultNow(),
+  ultimaOperacion: timestamp('ultima_operacion').defaultNow(),
+});
+
+export const operacionesCuenta = pgTable('operaciones_cuenta', {
+  id: serial('id').primaryKey(),
+  idCuenta: integer('id_cuenta').references(() => cuentasSoberanas.id).notNull(),
+  tipo: varchar('tipo', { length: 50 }).notNull(),
+  monto: decimal('monto', { precision: 20, scale: 4 }).notNull(),
+  saldoAnterior: decimal('saldo_anterior', { precision: 25, scale: 4 }),
+  saldoResultante: decimal('saldo_resultante', { precision: 25, scale: 4 }),
+  descripcion: text('descripcion'),
+  cuentaContraparte: varchar('cuenta_contraparte', { length: 20 }),
+  referencia: varchar('referencia', { length: 50 }),
+  timestamp: timestamp('timestamp').defaultNow(),
+});
+
 export const historialExpansion = pgTable('historial_expansion', {
   id: serial('id').primaryKey(),
   nombreActivo: varchar('nombre_activo', { length: 100 }),
@@ -57,3 +81,6 @@ export type NuevaTransaccion = typeof libroMayorZircoin.$inferInsert;
 export type ComandoSoberano = typeof controlSoberano.$inferSelect;
 export type NuevoComando = typeof controlSoberano.$inferInsert;
 export type BancoCentral = typeof bancoCentralZirok.$inferSelect;
+export type CuentaSoberana = typeof cuentasSoberanas.$inferSelect;
+export type NuevaCuenta = typeof cuentasSoberanas.$inferInsert;
+export type OperacionCuenta = typeof operacionesCuenta.$inferSelect;

@@ -13,6 +13,17 @@ async function req<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  cuentas: {
+    list: () => req<CuentaSoberana[]>('/cuentas'),
+    stats: () => req<{ totalCuentas: number; saldoTotal: number; totalOperaciones: number; cuentasActivas: number }>('/cuentas/stats'),
+    get: (id: number) => req<CuentaSoberana>(`/cuentas/${id}`),
+    operaciones: (id: number) => req<OperacionCuenta[]>(`/cuentas/${id}/operaciones`),
+    crear: (data: { titular: string; tipo?: string; saldoInicial?: number }) => req<CuentaSoberana>('/cuentas', { method: 'POST', body: JSON.stringify(data) }),
+    depositar: (id: number, data: { monto: number; descripcion?: string }) => req<any>(`/cuentas/${id}/depositar`, { method: 'POST', body: JSON.stringify(data) }),
+    retirar: (id: number, data: { monto: number; descripcion?: string }) => req<any>(`/cuentas/${id}/retirar`, { method: 'POST', body: JSON.stringify(data) }),
+    transferir: (data: { numeroCuentaOrigen: string; numeroCuentaDestino: string; monto: number; descripcion?: string }) => req<any>('/cuentas/transferir', { method: 'POST', body: JSON.stringify(data) }),
+    cambiarEstado: (id: number, estado: string) => req<CuentaSoberana>(`/cuentas/${id}/estado`, { method: 'PATCH', body: JSON.stringify({ estado }) }),
+  },
   banco: {
     get: () => req<BancoCentral>('/banco'),
     historial: (limit = 50) => req<HistorialExpansion[]>(`/banco/historial?limit=${limit}`),
@@ -114,6 +125,30 @@ export interface HistorialExpansion {
   valorActivo: string;
   deltaEmitido: string;
   totalAcumulado: string;
+  timestamp: string;
+}
+
+export interface CuentaSoberana {
+  id: number;
+  numeroCuenta: string;
+  titular: string;
+  tipo: string;
+  saldo: string;
+  estado: string;
+  fechaApertura: string;
+  ultimaOperacion: string;
+}
+
+export interface OperacionCuenta {
+  id: number;
+  idCuenta: number;
+  tipo: string;
+  monto: string;
+  saldoAnterior: string | null;
+  saldoResultante: string | null;
+  descripcion: string | null;
+  cuentaContraparte: string | null;
+  referencia: string | null;
   timestamp: string;
 }
 

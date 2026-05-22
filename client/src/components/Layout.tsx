@@ -1,12 +1,13 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import {
-  LayoutDashboard, Coins, Database, Shield, Zap, Infinity
+  LayoutDashboard, Coins, Database, Shield, Zap, Infinity, Wallet, ArrowRightLeft
 } from 'lucide-react';
 
 const nav = [
   { to: '/', label: 'Panel Central', icon: LayoutDashboard, exact: true },
   { to: '/activos', label: 'Activos Reales', icon: Database },
-  { to: '/emision', label: 'Emisión ZIRCOIN', icon: Coins },
+  { to: '/emision', label: 'Emisión ZC', icon: Coins },
+  { to: '/cuentas', label: 'Cuentas Soberanas', icon: Wallet },
   { to: '/control', label: 'Control Soberano', icon: Shield },
   { to: '/expansion', label: 'Expansión Infinita', icon: Infinity, gold: true },
 ];
