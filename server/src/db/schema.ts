@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, decimal, timestamp, boolean, integer, text } from 'drizzle-orm/pg-core';
+import { pgTable, serial, varchar, decimal, timestamp, boolean, integer, text, bigint } from 'drizzle-orm/pg-core';
 
 export const activosReales = pgTable('activos_reales', {
   id: serial('id').primaryKey(),
@@ -74,6 +74,44 @@ export const bancoCentralZirok = pgTable('banco_central_zirok', {
   ultimaActualizacion: timestamp('ultima_actualizacion').defaultNow(),
 });
 
+export const prestamosSoberanos = pgTable('prestamos_soberanos', {
+  id: serial('id').primaryKey(),
+  idCuentaDeudor: integer('id_cuenta_deudor').references(() => cuentasSoberanas.id).notNull(),
+  idCuentaAcreedor: integer('id_cuenta_acreedor').references(() => cuentasSoberanas.id),
+  montoPrincipal: decimal('monto_principal', { precision: 20, scale: 4 }).notNull(),
+  montoRestante: decimal('monto_restante', { precision: 20, scale: 4 }).notNull(),
+  tasaInteres: decimal('tasa_interes', { precision: 5, scale: 3 }).default('1.618'),
+  plazo: integer('plazo').notNull(),
+  proposito: text('proposito'),
+  estado: varchar('estado', { length: 30 }).default('ACTIVO'),
+  totalPagado: decimal('total_pagado', { precision: 20, scale: 4 }).default('0.0000'),
+  totalIntereses: decimal('total_intereses', { precision: 20, scale: 4 }).default('0.0000'),
+  fechaOtorgamiento: timestamp('fecha_otorgamiento').defaultNow(),
+  fechaVencimiento: timestamp('fecha_vencimiento').notNull(),
+});
+
+export const pagosPrestamo = pgTable('pagos_prestamo', {
+  id: serial('id').primaryKey(),
+  idPrestamo: integer('id_prestamo').references(() => prestamosSoberanos.id).notNull(),
+  monto: decimal('monto', { precision: 20, scale: 4 }).notNull(),
+  montoCapital: decimal('monto_capital', { precision: 20, scale: 4 }),
+  montoInteres: decimal('monto_interes', { precision: 20, scale: 4 }),
+  saldoRestante: decimal('saldo_restante', { precision: 20, scale: 4 }),
+  concepto: varchar('concepto', { length: 100 }),
+  timestamp: timestamp('timestamp').defaultNow(),
+});
+
+export const alertasSistema = pgTable('alertas_sistema', {
+  id: serial('id').primaryKey(),
+  tipo: varchar('tipo', { length: 60 }).notNull(),
+  nivel: varchar('nivel', { length: 20 }).default('INFO'),
+  mensaje: text('mensaje').notNull(),
+  entidadTipo: varchar('entidad_tipo', { length: 50 }),
+  entidadId: integer('entidad_id'),
+  leida: boolean('leida').default(false),
+  timestamp: timestamp('timestamp').defaultNow(),
+});
+
 export type ActivoReal = typeof activosReales.$inferSelect;
 export type NuevoActivo = typeof activosReales.$inferInsert;
 export type TransaccionZircoin = typeof libroMayorZircoin.$inferSelect;
@@ -84,3 +122,6 @@ export type BancoCentral = typeof bancoCentralZirok.$inferSelect;
 export type CuentaSoberana = typeof cuentasSoberanas.$inferSelect;
 export type NuevaCuenta = typeof cuentasSoberanas.$inferInsert;
 export type OperacionCuenta = typeof operacionesCuenta.$inferSelect;
+export type PrestamoSoberano = typeof prestamosSoberanos.$inferSelect;
+export type PagoPrestamo = typeof pagosPrestamo.$inferSelect;
+export type AlertaSistema = typeof alertasSistema.$inferSelect;

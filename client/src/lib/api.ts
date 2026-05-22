@@ -13,6 +13,25 @@ async function req<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  inteligencia: {
+    panorama: () => req<any>('/inteligencia/panorama'),
+  },
+  alertas: {
+    list: () => req<AlertaSistema[]>('/alertas'),
+    count: () => req<{ noLeidas: number }>('/alertas/count'),
+    evaluar: () => req<any>('/alertas/evaluar', { method: 'POST' }),
+    leer: (id: number) => req<any>(`/alertas/${id}/leer`, { method: 'PATCH' }),
+    leerTodas: () => req<any>('/alertas/leer-todas', { method: 'PATCH' }),
+  },
+  prestamos: {
+    list: () => req<PrestamoSoberano[]>('/prestamos'),
+    stats: () => req<any>('/prestamos/stats'),
+    pagos: (id: number) => req<PagoPrestamo[]>(`/prestamos/${id}/pagos`),
+    crear: (data: { idCuentaDeudor: number; montoPrincipal: number; plazo: number; proposito?: string }) =>
+      req<PrestamoSoberano>('/prestamos', { method: 'POST', body: JSON.stringify(data) }),
+    pagar: (id: number, data: { monto: number; idCuentaPagadora?: number }) =>
+      req<any>(`/prestamos/${id}/pagar`, { method: 'POST', body: JSON.stringify(data) }),
+  },
   cuentas: {
     list: () => req<CuentaSoberana[]>('/cuentas'),
     stats: () => req<{ totalCuentas: number; saldoTotal: number; totalOperaciones: number; cuentasActivas: number }>('/cuentas/stats'),
@@ -125,6 +144,46 @@ export interface HistorialExpansion {
   valorActivo: string;
   deltaEmitido: string;
   totalAcumulado: string;
+  timestamp: string;
+}
+
+export interface PrestamoSoberano {
+  id: number;
+  idCuentaDeudor: number;
+  idCuentaAcreedor: number | null;
+  montoPrincipal: string;
+  montoRestante: string;
+  tasaInteres: string;
+  plazo: number;
+  proposito: string | null;
+  estado: string;
+  totalPagado: string;
+  totalIntereses: string;
+  fechaOtorgamiento: string;
+  fechaVencimiento: string;
+  titularDeudor?: string | null;
+  numeroCuentaDeudor?: string | null;
+}
+
+export interface PagoPrestamo {
+  id: number;
+  idPrestamo: number;
+  monto: string;
+  montoCapital: string | null;
+  montoInteres: string | null;
+  saldoRestante: string | null;
+  concepto: string | null;
+  timestamp: string;
+}
+
+export interface AlertaSistema {
+  id: number;
+  tipo: string;
+  nivel: string;
+  mensaje: string;
+  entidadTipo: string | null;
+  entidadId: number | null;
+  leida: boolean;
   timestamp: string;
 }
 

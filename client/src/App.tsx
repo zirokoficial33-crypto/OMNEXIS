@@ -6,6 +6,8 @@ import Emision from './pages/Emision';
 import Control from './pages/Control';
 import Expansion from './pages/Expansion';
 import Cuentas from './pages/Cuentas';
+import Prestamos from './pages/Prestamos';
+import Inteligencia from './pages/Inteligencia';
 
 export default function App() {
   return (
@@ -15,8 +17,10 @@ export default function App() {
         <Route path="activos" element={<Activos />} />
         <Route path="emision" element={<Emision />} />
         <Route path="cuentas" element={<Cuentas />} />
+        <Route path="prestamos" element={<Prestamos />} />
         <Route path="control" element={<Control />} />
         <Route path="expansion" element={<Expansion />} />
+        <Route path="inteligencia" element={<Inteligencia />} />
       </Route>
     </Routes>
   );
