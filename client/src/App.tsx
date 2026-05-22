@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Activos from './pages/Activos';
 import Emision from './pages/Emision';
 import Control from './pages/Control';
+import Expansion from './pages/Expansion';
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Route path="activos" element={<Activos />} />
         <Route path="emision" element={<Emision />} />
         <Route path="control" element={<Control />} />
+        <Route path="expansion" element={<Expansion />} />
       </Route>
     </Routes>
   );

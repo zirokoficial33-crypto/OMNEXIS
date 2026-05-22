@@ -32,6 +32,15 @@ export const controlSoberano = pgTable('control_soberano', {
   fechaEjecucion: timestamp('fecha_ejecucion').defaultNow(),
 });
 
+export const historialExpansion = pgTable('historial_expansion', {
+  id: serial('id').primaryKey(),
+  nombreActivo: varchar('nombre_activo', { length: 100 }),
+  valorActivo: decimal('valor_activo', { precision: 20, scale: 2 }),
+  deltaEmitido: decimal('delta_emitido', { precision: 20, scale: 4 }),
+  totalAcumulado: decimal('total_acumulado', { precision: 25, scale: 4 }),
+  timestamp: timestamp('timestamp').defaultNow(),
+});
+
 export const bancoCentralZirok = pgTable('banco_central_zirok', {
   idBanco: serial('id_banco').primaryKey(),
   nombreBanco: varchar('nombre_banco', { length: 100 }).default('Banco de Soberanía Absoluta'),

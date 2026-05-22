@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import {
-  LayoutDashboard, Coins, Database, Shield, Zap
+  LayoutDashboard, Coins, Database, Shield, Zap, Infinity
 } from 'lucide-react';
 
 const nav = [
@@ -8,6 +8,7 @@ const nav = [
   { to: '/activos', label: 'Activos Reales', icon: Database },
   { to: '/emision', label: 'Emisión ZIRCOIN', icon: Coins },
   { to: '/control', label: 'Control Soberano', icon: Shield },
+  { to: '/expansion', label: 'Expansión Infinita', icon: Infinity, gold: true },
 ];
 
 export default function Layout() {
@@ -27,15 +28,19 @@ export default function Layout() {
         </div>
 
         <nav className="flex-1 p-3 space-y-0.5">
-          {nav.map(({ to, label, icon: Icon, exact }) => (
+          {nav.map(({ to, label, icon: Icon, exact, gold }) => (
             <NavLink
               key={to}
               to={to}
               end={exact}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
-                  isActive
+                  isActive && gold
+                    ? 'bg-amber-900/40 text-amber-400 border border-amber-800/50'
+                    : isActive
                     ? 'bg-sky-900/40 text-sky-400 border border-sky-800/50'
+                    : gold
+                    ? 'text-amber-500/70 hover:bg-amber-950/30 hover:text-amber-400 border border-transparent hover:border-amber-900/30'
                     : 'text-[#7aa8cc] hover:bg-[#0f2035] hover:text-[#e2f0ff]'
                 }`
               }

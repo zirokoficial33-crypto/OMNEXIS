@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { db, bancoCentralZirok } from '../db';
-import { eq, sql } from 'drizzle-orm';
+import { db, bancoCentralZirok, historialExpansion, activosReales } from '../db';
+import { eq, sql, desc } from 'drizzle-orm';
 
 const router = Router();
 
@@ -10,6 +10,20 @@ router.get('/', async (_req, res) => {
     res.json(banco || null);
   } catch (err) {
     res.status(500).json({ error: 'Error al obtener banco central' });
+  }
+});
+
+router.get('/historial', async (req, res) => {
+  try {
+    const limit = Number(req.query.limit) || 50;
+    const registros = await db
+      .select()
+      .from(historialExpansion)
+      .orderBy(desc(historialExpansion.timestamp))
+      .limit(limit);
+    res.json(registros);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener historial' });
   }
 });
 
@@ -32,22 +46,24 @@ router.post('/inicializar', async (_req, res) => {
   }
 });
 
-router.post('/actualizar-emision', async (req, res) => {
+router.post('/activar-expansion', async (req, res) => {
   try {
-    const { montoNuevo } = req.body;
-    const factor = 1.618;
-    const incremento = Number(montoNuevo) * factor;
-    const [updated] = await db.update(bancoCentralZirok)
-      .set({
-        totalEmitido: sql`total_emitido + ${incremento}`,
-        transaccionesTotales: sql`transacciones_totales + 1`,
-        ultimaActualizacion: new Date(),
-      })
-      .where(eq(bancoCentralZirok.idBanco, 1))
-      .returning();
-    res.json(updated);
+    const { nombreActivo, valorZircoin, categoria, descripcion } = req.body;
+    if (!nombreActivo || !valorZircoin) {
+      return res.status(400).json({ error: 'Nombre y valor requeridos' });
+    }
+    const [activo] = await db.insert(activosReales).values({
+      nombreActivo,
+      valorTasaZircoin: String(valorZircoin),
+      estadoDisponibilidad: 'OPERATIVO',
+      categoria: categoria || 'EXPANSION',
+      descripcion: descripcion || `Expansión Infinita — ${nombreActivo}`,
+    }).returning();
+
+    const [banco] = await db.select().from(bancoCentralZirok).where(eq(bancoCentralZirok.idBanco, 1));
+    res.status(201).json({ activo, banco });
   } catch (err) {
-    res.status(500).json({ error: 'Error al actualizar emisión' });
+    res.status(500).json({ error: 'Error al activar expansión' });
   }
 });
 

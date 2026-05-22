@@ -13,6 +13,12 @@ async function req<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  banco: {
+    get: () => req<BancoCentral>('/banco'),
+    historial: (limit = 50) => req<HistorialExpansion[]>(`/banco/historial?limit=${limit}`),
+    inicializar: () => req<BancoCentral>('/banco/inicializar', { method: 'POST' }),
+    activarExpansion: (data: ExpansionPayload) => req<{ activo: any; banco: BancoCentral }>('/banco/activar-expansion', { method: 'POST', body: JSON.stringify(data) }),
+  },
   dashboard: {
     stats: () => req<DashboardStats>('/dashboard/stats'),
     actividadReciente: () => req<TransaccionUI[]>('/dashboard/actividad-reciente'),
@@ -91,6 +97,31 @@ export interface TransferirPayload {
   origen: string;
   destino: string;
   idActivoRespaldo?: number;
+}
+
+export interface BancoCentral {
+  idBanco: number;
+  nombreBanco: string;
+  totalEmitido: string;
+  factorCrecimiento: string;
+  transaccionesTotales: number;
+  ultimaActualizacion: string;
+}
+
+export interface HistorialExpansion {
+  id: number;
+  nombreActivo: string;
+  valorActivo: string;
+  deltaEmitido: string;
+  totalAcumulado: string;
+  timestamp: string;
+}
+
+export interface ExpansionPayload {
+  nombreActivo: string;
+  valorZircoin: number;
+  categoria?: string;
+  descripcion?: string;
 }
 
 export function formatZC(val: string | number): string {
