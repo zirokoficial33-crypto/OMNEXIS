@@ -8,6 +8,7 @@ import Expansion from './pages/Expansion';
 import Cuentas from './pages/Cuentas';
 import Prestamos from './pages/Prestamos';
 import Inteligencia from './pages/Inteligencia';
+import Certificados from './pages/Certificados';
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="prestamos" element={<Prestamos />} />
         <Route path="control" element={<Control />} />
         <Route path="expansion" element={<Expansion />} />
+        <Route path="certificados" element={<Certificados />} />
         <Route path="inteligencia" element={<Inteligencia />} />
       </Route>
     </Routes>

@@ -9,6 +9,7 @@ import cuentasRouter from './routes/cuentas';
 import prestamosRouter from './routes/prestamos';
 import alertasRouter from './routes/alertas';
 import inteligenciaRouter from './routes/inteligencia';
+import certificadosRouter from './routes/certificados';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -29,6 +30,7 @@ app.use('/api/cuentas', cuentasRouter);
 app.use('/api/prestamos', prestamosRouter);
 app.use('/api/alertas', alertasRouter);
 app.use('/api/inteligencia', inteligenciaRouter);
+app.use('/api/certificados', certificadosRouter);
 
 app.listen(PORT, () => {
   console.log(`[ZIRCOIN] Servidor operativo en puerto ${PORT}`);

@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import {
-  LayoutDashboard, Coins, Database, Shield, Zap, Infinity, Wallet, Brain, Banknote
+  LayoutDashboard, Coins, Database, Shield, Zap, Infinity, Wallet, Brain, Banknote, Award, Atom
 } from 'lucide-react';
 
 const nav = [
@@ -9,8 +9,9 @@ const nav = [
   { to: '/emision', label: 'Emisión ZC', icon: Coins },
   { to: '/cuentas', label: 'Cuentas Soberanas', icon: Wallet },
   { to: '/prestamos', label: 'Préstamos φ', icon: Banknote },
+  { to: '/certificados', label: 'Certificados', icon: Award },
   { to: '/control', label: 'Control Soberano', icon: Shield },
-  { to: '/expansion', label: 'Expansión Infinita', icon: Infinity, gold: true },
+  { to: '/expansion', label: 'Expansión ∞', icon: Atom, gold: true },
   { to: '/inteligencia', label: 'Inteligencia', icon: Brain, purple: true },
 ];
 

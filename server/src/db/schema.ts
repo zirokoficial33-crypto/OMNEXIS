@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, decimal, timestamp, boolean, integer, text, bigint } from 'drizzle-orm/pg-core';
+import { pgTable, serial, varchar, decimal, timestamp, boolean, integer, text } from 'drizzle-orm/pg-core';
 
 export const activosReales = pgTable('activos_reales', {
   id: serial('id').primaryKey(),
@@ -112,6 +112,46 @@ export const alertasSistema = pgTable('alertas_sistema', {
   timestamp: timestamp('timestamp').defaultNow(),
 });
 
+// ─── CERTIFICADOS DE VALOR ───────────────────────────────────────────────────
+export const certificadosValor = pgTable('certificados_valor', {
+  id: serial('id').primaryKey(),
+  serialCertificado: varchar('serial_certificado', { length: 24 }).notNull().unique(),
+  denominacion: decimal('denominacion', { precision: 20, scale: 4 }).notNull(),
+  idActivoRespaldo: integer('id_activo_respaldo').references(() => activosReales.id),
+  idCuentaTenedor: integer('id_cuenta_tenedor').references(() => cuentasSoberanas.id),
+  estado: varchar('estado', { length: 30 }).default('ACTIVO'),
+  clase: varchar('clase', { length: 30 }).default('SOBERANO'),
+  descripcion: text('descripcion'),
+  fechaEmision: timestamp('fecha_emision').defaultNow(),
+  fechaVencimiento: timestamp('fecha_vencimiento'),
+  fechaRedencion: timestamp('fecha_redencion'),
+});
+
+export const movimientosCertificado = pgTable('movimientos_certificado', {
+  id: serial('id').primaryKey(),
+  idCertificado: integer('id_certificado').references(() => certificadosValor.id).notNull(),
+  tipo: varchar('tipo', { length: 30 }).notNull(),
+  idCuentaOrigen: integer('id_cuenta_origen').references(() => cuentasSoberanas.id),
+  idCuentaDestino: integer('id_cuenta_destino').references(() => cuentasSoberanas.id),
+  notas: text('notas'),
+  timestamp: timestamp('timestamp').defaultNow(),
+});
+
+// ─── CICLOS CUÁNTICOS ─────────────────────────────────────────────────────────
+export const ciclosCuanticos = pgTable('ciclos_cuanticos', {
+  id: serial('id').primaryKey(),
+  cicloNumero: integer('ciclo_numero').notNull(),
+  dimension: varchar('dimension', { length: 50 }).notNull(),
+  factorAplicado: decimal('factor_aplicado', { precision: 20, scale: 10 }).notNull(),
+  valorBase: decimal('valor_base', { precision: 25, scale: 4 }).notNull(),
+  valorResultado: decimal('valor_resultado', { precision: 25, scale: 4 }).notNull(),
+  delta: decimal('delta', { precision: 25, scale: 4 }).notNull(),
+  energiaCuantica: decimal('energia_cuantica', { precision: 10, scale: 6 }).notNull(),
+  estado: varchar('estado', { length: 30 }).default('COMPLETADO'),
+  timestamp: timestamp('timestamp').defaultNow(),
+});
+
+// ─── TYPES ────────────────────────────────────────────────────────────────────
 export type ActivoReal = typeof activosReales.$inferSelect;
 export type NuevoActivo = typeof activosReales.$inferInsert;
 export type TransaccionZircoin = typeof libroMayorZircoin.$inferSelect;
@@ -125,3 +165,6 @@ export type OperacionCuenta = typeof operacionesCuenta.$inferSelect;
 export type PrestamoSoberano = typeof prestamosSoberanos.$inferSelect;
 export type PagoPrestamo = typeof pagosPrestamo.$inferSelect;
 export type AlertaSistema = typeof alertasSistema.$inferSelect;
+export type CertificadoValor = typeof certificadosValor.$inferSelect;
+export type MovimientoCertificado = typeof movimientosCertificado.$inferSelect;
+export type CicloCuantico = typeof ciclosCuanticos.$inferSelect;

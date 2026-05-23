@@ -43,11 +43,25 @@ export const api = {
     transferir: (data: { numeroCuentaOrigen: string; numeroCuentaDestino: string; monto: number; descripcion?: string }) => req<any>('/cuentas/transferir', { method: 'POST', body: JSON.stringify(data) }),
     cambiarEstado: (id: number, estado: string) => req<CuentaSoberana>(`/cuentas/${id}/estado`, { method: 'PATCH', body: JSON.stringify({ estado }) }),
   },
+  certificados: {
+    list: () => req<CertificadoValor[]>('/certificados'),
+    stats: () => req<any>('/certificados/stats'),
+    movimientos: (id: number) => req<any[]>(`/certificados/${id}/movimientos`),
+    emitir: (data: { denominacion: number; idActivoRespaldo?: number; idCuentaTenedor?: number; clase?: string; descripcion?: string; diasVigencia?: number }) =>
+      req<CertificadoValor>('/certificados', { method: 'POST', body: JSON.stringify(data) }),
+    transferir: (id: number, data: { idCuentaDestino: number; notas?: string }) =>
+      req<any>(`/certificados/${id}/transferir`, { method: 'POST', body: JSON.stringify(data) }),
+    redimir: (id: number, data: { idCuentaCobro?: number; notas?: string }) =>
+      req<any>(`/certificados/${id}/redimir`, { method: 'POST', body: JSON.stringify(data) }),
+  },
   banco: {
     get: () => req<BancoCentral>('/banco'),
     historial: (limit = 50) => req<HistorialExpansion[]>(`/banco/historial?limit=${limit}`),
+    ciclosCuanticos: (limit = 30) => req<CicloCuantico[]>(`/banco/ciclos-cuanticos?limit=${limit}`),
+    ciclosStats: () => req<any>('/banco/ciclos-cuanticos/stats'),
     inicializar: () => req<BancoCentral>('/banco/inicializar', { method: 'POST' }),
     activarExpansion: (data: ExpansionPayload) => req<{ activo: any; banco: BancoCentral }>('/banco/activar-expansion', { method: 'POST', body: JSON.stringify(data) }),
+    expansionCuantica: (ciclosAFirar = 1) => req<any>('/banco/expansion-cuantica', { method: 'POST', body: JSON.stringify({ ciclosAFirar }) }),
   },
   dashboard: {
     stats: () => req<DashboardStats>('/dashboard/stats'),
@@ -216,6 +230,36 @@ export interface ExpansionPayload {
   valorZircoin: number;
   categoria?: string;
   descripcion?: string;
+}
+
+export interface CertificadoValor {
+  id: number;
+  serialCertificado: string;
+  denominacion: string;
+  estado: string;
+  clase: string;
+  descripcion: string | null;
+  fechaEmision: string;
+  fechaVencimiento: string | null;
+  fechaRedencion: string | null;
+  idActivoRespaldo: number | null;
+  idCuentaTenedor: number | null;
+  nombreActivo?: string | null;
+  titularCuenta?: string | null;
+  numeroCuenta?: string | null;
+}
+
+export interface CicloCuantico {
+  id: number;
+  cicloNumero: number;
+  dimension: string;
+  factorAplicado: string;
+  valorBase: string;
+  valorResultado: string;
+  delta: string;
+  energiaCuantica: string;
+  estado: string;
+  timestamp: string;
 }
 
 export function formatZC(val: string | number): string {
