@@ -13,6 +13,7 @@ import alertasRouter from './routes/alertas';
 import inteligenciaRouter from './routes/inteligencia';
 import certificadosRouter from './routes/certificados';
 import authRouter from './routes/auth';
+import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -75,14 +76,15 @@ app.use((_req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });
 
-app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error('[ZIRCOIN ERROR]', err.message);
-  res.status(500).json({ error: 'Error interno del servidor soberano' });
-});
+// ─── GLOBAL ERROR HANDLER ─────────────────────────────────────────────────────
+// Captura todo error lanzado con next(err) o dentro de asyncHandler.
+// En producción nunca expone stack traces al cliente.
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`[ZIRCOIN] ⚡ Servidor BLINDADO operativo en puerto ${PORT}`);
-  console.log(`[ZIRCOIN] 🛡️  Helmet + Rate Limiting + Zod + JWT activos`);
+  console.log(`[ZIRCOIN] 🛡️  Helmet + Rate Limiting + Zod + JWT + ACID activos`);
+  console.log(`[ZIRCOIN] 🏗️  Arquitectura: Controllers → Services → DB (Drizzle)`);
 });
 
 export default app;
