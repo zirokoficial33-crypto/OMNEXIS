@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { db, cuentasSoberanas, operacionesCuenta } from '../db';
 import { eq, desc, sql } from 'drizzle-orm';
+import { validate } from '../middleware/validate';
+import { crearCuentaSchema, depositarSchema, retirarSchema, transferirSchema } from '../schemas';
 
 const router = Router();
 
@@ -67,10 +69,9 @@ router.get('/:id/operaciones', async (req, res) => {
 });
 
 // POST /api/cuentas — crear cuenta
-router.post('/', async (req, res) => {
+router.post('/', validate(crearCuentaSchema), async (req, res) => {
   try {
     const { titular, tipo, saldoInicial } = req.body;
-    if (!titular) return res.status(400).json({ error: 'El titular es requerido' });
     const numeroCuenta = generarNumeroCuenta();
     const saldo = saldoInicial ? String(Number(saldoInicial).toFixed(4)) : '0.0000';
     const [cuenta] = await db.insert(cuentasSoberanas).values({
@@ -100,11 +101,10 @@ router.post('/', async (req, res) => {
 });
 
 // POST /api/cuentas/:id/depositar
-router.post('/:id/depositar', async (req, res) => {
+router.post('/:id/depositar', validate(depositarSchema), async (req, res) => {
   try {
     const { monto, descripcion } = req.body;
     const montoNum = Number(monto);
-    if (!montoNum || montoNum <= 0) return res.status(400).json({ error: 'Monto inválido' });
 
     const [cuenta] = await db.select().from(cuentasSoberanas).where(eq(cuentasSoberanas.id, Number(req.params.id)));
     if (!cuenta) return res.status(404).json({ error: 'Cuenta no encontrada' });
@@ -135,11 +135,10 @@ router.post('/:id/depositar', async (req, res) => {
 });
 
 // POST /api/cuentas/:id/retirar
-router.post('/:id/retirar', async (req, res) => {
+router.post('/:id/retirar', validate(retirarSchema), async (req, res) => {
   try {
     const { monto, descripcion } = req.body;
     const montoNum = Number(monto);
-    if (!montoNum || montoNum <= 0) return res.status(400).json({ error: 'Monto inválido' });
 
     const [cuenta] = await db.select().from(cuentasSoberanas).where(eq(cuentasSoberanas.id, Number(req.params.id)));
     if (!cuenta) return res.status(404).json({ error: 'Cuenta no encontrada' });
@@ -171,13 +170,10 @@ router.post('/:id/retirar', async (req, res) => {
 });
 
 // POST /api/cuentas/transferir — transferencia entre cuentas
-router.post('/transferir', async (req, res) => {
+router.post('/transferir', validate(transferirSchema), async (req, res) => {
   try {
     const { numeroCuentaOrigen, numeroCuentaDestino, monto, descripcion } = req.body;
     const montoNum = Number(monto);
-    if (!montoNum || montoNum <= 0) return res.status(400).json({ error: 'Monto inválido' });
-    if (!numeroCuentaOrigen || !numeroCuentaDestino) return res.status(400).json({ error: 'Cuentas requeridas' });
-    if (numeroCuentaOrigen === numeroCuentaDestino) return res.status(400).json({ error: 'Origen y destino deben ser distintos' });
 
     const [origen] = await db.select().from(cuentasSoberanas).where(eq(cuentasSoberanas.numeroCuenta, numeroCuentaOrigen));
     const [destino] = await db.select().from(cuentasSoberanas).where(eq(cuentasSoberanas.numeroCuenta, numeroCuentaDestino));

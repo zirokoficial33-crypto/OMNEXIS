@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { db, certificadosValor, movimientosCertificado, cuentasSoberanas, activosReales, alertasSistema, operacionesCuenta } from '../db';
 import { eq, desc, sql } from 'drizzle-orm';
+import { validate } from '../middleware/validate';
+import { emitirCertificadoSchema, transferirCertificadoSchema, redimirCertificadoSchema } from '../schemas';
 
 const router = Router();
 
@@ -81,10 +83,9 @@ router.get('/:id/movimientos', async (req, res) => {
 });
 
 // POST /api/certificados — emitir certificado
-router.post('/', async (req, res) => {
+router.post('/', validate(emitirCertificadoSchema), async (req, res) => {
   try {
     const { denominacion, idActivoRespaldo, idCuentaTenedor, clase, descripcion, diasVigencia } = req.body;
-    if (!denominacion) return res.status(400).json({ error: 'Denominación requerida' });
 
     const serial = genSerial();
     const fechaVencimiento = diasVigencia ? new Date(Date.now() + Number(diasVigencia) * 86400000) : null;
@@ -120,10 +121,9 @@ router.post('/', async (req, res) => {
 });
 
 // POST /api/certificados/:id/transferir
-router.post('/:id/transferir', async (req, res) => {
+router.post('/:id/transferir', validate(transferirCertificadoSchema), async (req, res) => {
   try {
     const { idCuentaDestino, notas } = req.body;
-    if (!idCuentaDestino) return res.status(400).json({ error: 'Cuenta destino requerida' });
 
     const [cert] = await db.select().from(certificadosValor).where(eq(certificadosValor.id, Number(req.params.id)));
     if (!cert) return res.status(404).json({ error: 'Certificado no encontrado' });
@@ -153,7 +153,7 @@ router.post('/:id/transferir', async (req, res) => {
 });
 
 // POST /api/certificados/:id/redimir
-router.post('/:id/redimir', async (req, res) => {
+router.post('/:id/redimir', validate(redimirCertificadoSchema), async (req, res) => {
   try {
     const { idCuentaCobro, notas } = req.body;
     const [cert] = await db.select().from(certificadosValor).where(eq(certificadosValor.id, Number(req.params.id)));

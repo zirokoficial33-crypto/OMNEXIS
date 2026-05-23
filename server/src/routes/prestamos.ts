@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { db, prestamosSoberanos, pagosPrestamo, cuentasSoberanas, operacionesCuenta, alertasSistema } from '../db';
 import { eq, desc, and, lt, sql } from 'drizzle-orm';
+import { validate } from '../middleware/validate';
+import { crearPrestamoSchema, pagarPrestamoSchema } from '../schemas';
 
 const router = Router();
 
@@ -66,11 +68,9 @@ router.get('/:id/pagos', async (req, res) => {
 });
 
 // POST /api/prestamos — otorgar préstamo
-router.post('/', async (req, res) => {
+router.post('/', validate(crearPrestamoSchema), async (req, res) => {
   try {
     const { idCuentaDeudor, idCuentaAcreedor, montoPrincipal, plazo, proposito } = req.body;
-    if (!idCuentaDeudor || !montoPrincipal || !plazo) return res.status(400).json({ error: 'Campos requeridos: idCuentaDeudor, montoPrincipal, plazo' });
-
     const montoNum = Number(montoPrincipal);
     const [deudor] = await db.select().from(cuentasSoberanas).where(eq(cuentasSoberanas.id, Number(idCuentaDeudor)));
     if (!deudor) return res.status(404).json({ error: 'Cuenta deudor no encontrada' });
@@ -120,11 +120,10 @@ router.post('/', async (req, res) => {
 });
 
 // POST /api/prestamos/:id/pagar — registrar pago
-router.post('/:id/pagar', async (req, res) => {
+router.post('/:id/pagar', validate(pagarPrestamoSchema), async (req, res) => {
   try {
     const { monto, idCuentaPagadora } = req.body;
     const montoNum = Number(monto);
-    if (!montoNum || montoNum <= 0) return res.status(400).json({ error: 'Monto inválido' });
 
     const [prestamo] = await db.select().from(prestamosSoberanos).where(eq(prestamosSoberanos.id, Number(req.params.id)));
     if (!prestamo) return res.status(404).json({ error: 'Préstamo no encontrado' });
